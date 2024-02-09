@@ -1,0 +1,53 @@
+---
+
+import Layout from '../../layouts/Layout.astro'
+import { getLaunchBy } from '../../services/spacex'
+
+export const prerender = false //funciona en server
+
+const { id } = Astro.params
+
+
+console.log({id})
+
+let launch
+if (id) {
+   launch = await getLaunchBy({ id })     
+   console.log(launch?.name)
+}
+const launchStatus = launch?.success ? "Success" : "Failure"
+/* genera paginas de id de manera estatica construir el build
+export async function getStaticPaths() {
+    const launches = await getLatestLaunches()
+
+    return launches.map(launch => ({
+        params: {id: launch.id}
+    }))
+}*/
+
+
+---
+<Layout title=`Launch #${launch?.flight_number}`>
+    <article class="flex gap-y-4 flex-col text-justify items-center">
+
+        <img class="w-52 h-auto" src={launch?.links.patch.small} alt={launch?.name}>
+        <small>
+            Launch #{launch?.flight_number}
+            <span 
+            class:list={[
+                "text-xs font-semibold mr-2 px-2.5 py-0.5 rounded",
+                {
+                    "bg-green-400 text-green-900": launch?.success,
+                    "bg-red-400 text-red-900": !launch?.success
+                }
+            ]}>
+                {launchStatus}
+        </span>
+        </small>
+        <h2 class="text-4xl text-white font-bold">{launch?.name} </h2>
+        <p class="text-lg">{launch?.details}</p>
+  
+        
+
+    </article>
+</Layout>
